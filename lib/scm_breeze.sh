@@ -45,21 +45,22 @@ disable_nullglob() {
 }
 
 # Alias wrapper that ignores errors if alias is not defined.
-_safe_alias(){ alias "$@" 2> /dev/null; }
+_safe_alias() { alias "$@" 2>/dev/null; }
 _alias() {
   if [ -n "$1" ]; then
-    local alias_str="$1"; local cmd="$2"
+    local alias_str="$1"
+    local cmd="$2"
     _safe_alias $alias_str="$cmd"
   fi
 }
 
 # Quote the contents of "$@"
 function token_quote {
-    # Older versions of {ba,z}sh don't support the built-in quoting, so fall back to printf %q
+  # Older versions of {ba,z}sh don't support the built-in quoting, so fall back to printf %q
   local quoted
-  quoted=()  # Assign separately for zsh 5.0.2 of Ubuntu 14.04
+  quoted=() # Assign separately for zsh 5.0.2 of Ubuntu 14.04
   for token; do
-    quoted+=( "$(printf '%q' "$token")" )
+    quoted+=("$(printf '%q' "$token")")
   done
   printf '%s\n' "${quoted[*]}"
 
@@ -109,7 +110,7 @@ export GIT_BINARY=$(find_binary git)
 update_scm_breeze() {
   currDir=$PWD
   cd "$scmbDir"
-  oldHEAD=$(git rev-parse HEAD 2> /dev/null)
+  oldHEAD=$(git rev-parse HEAD 2>/dev/null)
   git pull origin master
   # Reload latest version of '_create_or_patch_scmbrc' function
   source "$scmbDir/lib/scm_breeze.sh"
@@ -131,8 +132,8 @@ _create_or_patch_scmbrc() {
     # If file exists, attempt to update it with any new settings
     elif [ -n "$1" ]; then
       # Create diff of example file, substituting example file for user's config.
-      git diff $1 "$prefix""scmbrc.example" | sed "s/$prefix""scmbrc.example/.$prefix""scmbrc/g" >| $patchfile
-      if [ -s $patchfile ]; then  # If patchfile is not empty
+      git diff $1 "$prefix""scmbrc.example" | sed "s/$prefix""scmbrc.example/.$prefix""scmbrc/g" >|$patchfile
+      if [ -s $patchfile ]; then # If patchfile is not empty
         cd "$HOME"
         # If the patch cannot be applied cleanly, show the updates and tell user to update file manually.
         if ! patch -f "$HOME/.$prefix""scmbrc" $patchfile; then

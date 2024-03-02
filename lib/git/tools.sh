@@ -18,21 +18,21 @@
 git_remove_history() {
   # Make sure we're at the root of a git repo
   if [ ! -d .git ]; then
-      echo "Error: must run this script from the root of a git repository"
-      return
+    echo "Error: must run this script from the root of a git repository"
+    return
   fi
   # Remove all paths passed as arguments from the history of the repo
   local files
   files=("$@")
   $_git_cmd filter-branch --index-filter "$_git_cmd rm -rf --cached --ignore-unmatch ${files[*]}" HEAD
   # Remove the temporary history git-filter-branch otherwise leaves behind for a long time
-  rm -rf .git/refs/original/ && $_git_cmd reflog expire --all &&  $_git_cmd gc --aggressive --prune
+  rm -rf .git/refs/original/ && $_git_cmd reflog expire --all && $_git_cmd gc --aggressive --prune
 }
 
 # Set default remote and merge for a git branch (pull and push)
 # Usage: git_set_default_remote(branch = master, remote = origin)
 git_set_default_remote() {
-  curr_branch=$($_git_cmd branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+  curr_branch=$($_git_cmd branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
   if [ -n "$1" ]; then branch="$1"; else branch="$curr_branch"; fi
   if [ -n "$2" ]; then remote="$2"; else remote="origin"; fi
   echo "branch.$branch.remote: $remote"
@@ -45,7 +45,7 @@ git_set_default_remote() {
 # Usage: git_ignore [rule] [ignore_file=.gitignore]
 __git_ignore() {
   if [ -n "$2" ]; then local f="$2"; else local f=".gitignore"; fi
-  if [ -n "$1" ] && ! ([ -e $f ] && grep -q "$1" $f); then echo "$1" >> $f; fi
+  if [ -n "$1" ] && ! ([ -e $f ] && grep -q "$1" $f); then echo "$1" >>$f; fi
 }
 # Always expand args
 git_ignore() {
@@ -77,7 +77,7 @@ git_exclude_basename() {
 #
 git_bisect_grep() {
   if [ -z "$2" ]; then
-    echo "Usage: $0 <good_revision> <string>";
+    echo "Usage: $0 <good_revision> <string>"
     return
   fi
   if [ -n "$3" ]; then search_path="$3"; else search_path="."; fi

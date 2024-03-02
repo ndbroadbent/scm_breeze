@@ -184,7 +184,7 @@ test_git_status_shortcuts() {
   # (This is needed so that env variables are exported in the current shell)
   temp_file=$(mktemp -t scm_breeze.XXXXXXXXXX)
   git_status_shortcuts >$temp_file
-  git_status=$(<$temp_file strip_colors)
+  git_status=$(strip_colors <$temp_file)
 
   assertIncludes "$git_status" "new file: *\[1\] *new_file" || return
   assertIncludes "$git_status" "deleted: *\[2\] *deleted_file" || return

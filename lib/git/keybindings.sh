@@ -45,9 +45,10 @@ if [[ "$git_keyboard_shortcuts_enabled" = "true" ]]; then
         fi
       fi
 
-      # Commands are prepended with a space so that they won't be added to history.
-      # Make sure this is turned on with:
-      # zsh:  setopt histignorespace histignoredups
-      # bash: HISTCONTROL=ignorespace:ignoredups
+    # Commands are prepended with a space so that they won't be added to history.
+    # Make sure this is turned on with:
+    # zsh:  setopt histignorespace histignoredups
+    # bash: HISTCONTROL=ignorespace:ignoredups
+    ;;
   esac
 fi

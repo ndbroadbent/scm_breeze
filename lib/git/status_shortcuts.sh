@@ -82,7 +82,7 @@ git_silent_add_shortcuts() {
   if [ -n "$1" ]; then
     # Expand args and process resulting set of files.
     local args
-    eval args="$(scmb_expand_args "$@")"  # populate $args array
+    eval args="$(scmb_expand_args "$@")" # populate $args array
     for file in "${args[@]}"; do
       # Use 'git rm' if file doesn't exist and 'ga_auto_remove' is enabled.
       if [[ $ga_auto_remove = yes && ! -e $file ]]; then
@@ -99,16 +99,19 @@ git_silent_add_shortcuts() {
 
 # Prints a list of all files affected by a given SHA1,
 # and exports numbered environment variables for each file.
-git_show_affected_files(){
+git_show_affected_files() {
   fail_if_not_git_repo || return 1
-  local f=0  # File count
+  local f=0 # File count
   # Show colored revision and commit message
-  echo -n "# "; git show --oneline --name-only "$@" | head -n1; echo "# "
+  echo -n "# "
+  git show --oneline --name-only "$@" | head -n1
+  echo "# "
   for file in $(git show --pretty="format:" --name-only "$@" | \grep -v '^$'); do
     let f++
-    export $git_env_char$f=$file     # Export numbered variable.
+    export $git_env_char$f=$file # Export numbered variable.
     echo -e "#     \033[2;37m[\033[0m$f\033[2;37m]\033[0m $file"
-  done; echo "# "
+  done
+  echo "# "
 }
 
 # Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
@@ -124,20 +127,20 @@ scmb_expand_args() {
   fi
 
   local args
-  args=()  # initially empty array. zsh 5.0.2 from Ubuntu 14.04 requires this to be separated
+  args=() # initially empty array. zsh 5.0.2 from Ubuntu 14.04 requires this to be separated
   for arg in "$@"; do
-    if [[ "$arg" =~ ^[0-9]{0,4}$ ]] ; then      # Substitute $e{*} variables for any integers
+    if [[ "$arg" =~ ^[0-9]{0,4}$ ]]; then # Substitute $e{*} variables for any integers
       if [ -e "$arg" ]; then
         # Don't expand files or directories with numeric names
         args+=("$arg")
       else
         args+=("$(_print_path "$relative" "$git_env_char$arg")")
       fi
-    elif [[ "$arg" =~ ^[0-9]+-[0-9]+$ ]]; then           # Expand ranges into $e{*} variables
+    elif [[ "$arg" =~ ^[0-9]+-[0-9]+$ ]]; then # Expand ranges into $e{*} variables
       for i in $(eval echo {${arg/-/..}}); do
         args+=("$(_print_path "$relative" "$git_env_char$i")")
       done
-    else   # Otherwise, treat $arg as a normal string.
+    else # Otherwise, treat $arg as a normal string.
       args+=("$arg")
     fi
   done
@@ -167,14 +170,14 @@ _print_path() {
 # Fails if command is a number or range (probably not worth fixing)
 exec_scmb_expand_args() {
   local args
-  eval "args=$(scmb_expand_args "$@")"  # populate $args array
+  eval "args=$(scmb_expand_args "$@")" # populate $args array
   _safe_eval "${args[@]}"
 }
 
 # Clear numbered env variables
 git_clear_vars() {
   local i
-  for (( i=1; i<=$gs_max_changes; i++ )); do
+  for ((i = 1; i <= $gs_max_changes; i++)); do
     # Stop clearing after first empty var
     local env_var_i=${git_env_char}${i}
     if [[ -z "$(eval echo "\${$env_var_i:-}")" ]]; then
@@ -190,18 +193,17 @@ _git_resolve_merge_conflict() {
   if [ -n "$2" ]; then
     # Expand args and process resulting set of files.
     local args
-    eval "args=$(scmb_expand_args "$@")"  # populate $args array
+    eval "args=$(scmb_expand_args "$@")" # populate $args array
     for file in "${args[@]:2}"; do
-      git checkout "--$1""s" "$file"   # "--$1""s" is expanded to --ours or --theirs
+      git checkout "--$1""s" "$file" # "--$1""s" is expanded to --ours or --theirs
       git add "$file"
       echo -e "# Added $1 version of '$file'"
     done
     echo -e "# -- If you have finished resolving conflicts, commit the resolutions with 'git commit'"
   fi
 }
-ours(){   _git_resolve_merge_conflict "our" "$@"; }
-theirs(){ _git_resolve_merge_conflict "their" "$@"; }
-
+ours() { _git_resolve_merge_conflict "our" "$@"; }
+theirs() { _git_resolve_merge_conflict "their" "$@"; }
 
 # Git commit prompts
 # ------------------------------------------------------------------------------
@@ -292,7 +294,7 @@ git_add_and_commit() (
   git_silent_add_shortcuts "$@"
   changes=$(git diff --cached --numstat | wc -l)
   if [ "$changes" -gt 0 ]; then
-    git_status_shortcuts 1  # only show staged changes
+    git_status_shortcuts 1 # only show staged changes
     git_commit_prompt
   else
     echo "# No staged changes to commit."
